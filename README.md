@@ -1,7 +1,7 @@
-Rules Formatting
-State = "Dead" or "Alive"
-Operator = "=", ">=", "<="
-Int = Number of alive neighbors
+# Rules Formatting
+- State = "Dead" or "Alive"
+- Operator = "=", ">=", "<="
+- Int = Number of alive neighbors
 
 ```
     # Conditions for the cell to live
