@@ -103,14 +103,14 @@ class CellAutomaton:
                 for j in range(DIMENSOES[1]//cell_size):
                     n_neighbors = self.get_neighbors(i, j)
                     if self.cell_grid_list_cur[i][j] == "white":
-                        if self.apply_alive_rules(n_neighbors):
+                        if not self.apply_alive_rules(n_neighbors):
                             self.cell_grid_list_next[i][j] = "black"
                     else:
                         if self.apply_dead_rules(n_neighbors):
                             self.cell_grid_list_next[i][j] = "white"
             self.cell_grid_list_cur = self.cell_grid_list_next
             self.draw_grid()
-    
+        
     def apply_alive_rules(self, n_neighbors):
         live = False
         for i in self.alive_rules:
