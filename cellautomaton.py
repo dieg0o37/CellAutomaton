@@ -62,7 +62,8 @@ class CellAutomaton:
 
         row = (event.x - offset)//cell_size
         col = (event.y - offset)//cell_size
-
+        if 0 <= row < len(self.cell_grid_list_cur) and 0 <= col < len(self.cell_grid_list_cur[0]):
+            return
         if self.cell_grid_list_cur[row][col] == "black":
             self.cell_grid_list_cur[row][col] = "white"
         else:
@@ -76,11 +77,12 @@ class CellAutomaton:
             for j in range(-1, 2):
                 if i == 0 and j == 0:
                     continue
-                try:
-                    if self.cell_grid_list_cur[row + i][col + j] == "white":
-                        total_alive += 1
-                finally:
+                cur_row = row + i
+                cur_col = col + j
+                if cur_row < 0 or cur_row >= (DIMENSOES[0]//cell_size) or cur_col < 0 or cur_col >= (DIMENSOES[1]//cell_size):
                     continue
+                if self.cell_grid_list_cur[cur_row][cur_col] == "white":
+                    total_alive += 1
         return total_alive
     
     def get_rules(self):
@@ -92,24 +94,28 @@ class CellAutomaton:
         self.cell_grid.unbind("<Button-1>")
         self.get_rules()
         self.running = True
-        # Apply rules
-        # Start simulation loop
-        #   Run through each cell applying the rules
-        #   Update the cell grid list
-        #   Redraw the grid
-        while self.running:
-            self.cell_grid_list_next = self.cell_grid_list_cur
-            for i in range(DIMENSOES[0]//cell_size):
-                for j in range(DIMENSOES[1]//cell_size):
-                    n_neighbors = self.get_neighbors(i, j)
-                    if self.cell_grid_list_cur[i][j] == "white":
-                        if not self.apply_alive_rules(n_neighbors):
-                            self.cell_grid_list_next[i][j] = "black"
-                    else:
-                        if self.apply_dead_rules(n_neighbors):
-                            self.cell_grid_list_next[i][j] = "white"
-            self.cell_grid_list_cur = self.cell_grid_list_next
-            self.draw_grid()
+        self.simulation_loop()        
+
+    def simulation_loop(self):
+        changed = False
+        self.cell_grid_list_next = [row[:] for row in self.cell_grid_list_cur]
+        for i in range(DIMENSOES[0]//cell_size):
+            for j in range(DIMENSOES[1]//cell_size):
+                n_neighbors = self.get_neighbors(i, j)
+                if self.cell_grid_list_cur[i][j] == "white":
+                    if not self.apply_alive_rules(n_neighbors):
+                        self.cell_grid_list_next[i][j] = "black"
+                        changed = True
+                else:
+                    if self.apply_dead_rules(n_neighbors):
+                        self.cell_grid_list_next[i][j] = "white"
+                        changed = True
+        self.cell_grid_list_cur = self.cell_grid_list_next
+        self.draw_grid()
+        if not changed:
+            self.running = False
+        if self.running:
+            self.root.after(500, self.simulation_loop)
         
     def apply_alive_rules(self, n_neighbors):
         live = False
@@ -126,8 +132,15 @@ class CellAutomaton:
                 live = True
                 continue
         return live
+
     def break_simulation(self):
         self.running = False
+        self.cell_grid.bind("<Button-1>", self.toggle_cell)
+        
+        # Reset the grid
+        self.cell_grid_list_cur = [["black" for _ in range(DIMENSOES[0] // cell_size)] for _ in range(DIMENSOES[1] // cell_size)]
+        self.cell_grid_list_next = []
+        self.draw_grid()
 
 if __name__ == "__main__":
     root = Tk()
