@@ -6,5 +6,4 @@
 ```
     # Conditions for the cell to live
  if <State> <Operator> <Int>:
-    <State> = Alive
 ```
