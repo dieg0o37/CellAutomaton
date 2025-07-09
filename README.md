@@ -1,9 +1,12 @@
 # Rules Formatting
 - State = "Dead" or "Alive"
-- Operator = "=", ">=", "<="
+- Operator = "=", ">=", "<=", ">", "<", "!="
 - Int = Number of alive neighbors
 
 ```
-    # Conditions for the cell to live
- if <State> <Operator> <Int>:
+    # Conditions for a cell to live based on their current state and the number of alive neighbors
+ if <State> <Operator> <Int>
+ if <State> <Operator> <Int>
+    ....
+    # as many as you want
 ```
