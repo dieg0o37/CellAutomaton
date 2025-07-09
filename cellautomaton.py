@@ -105,8 +105,8 @@ class CellAutomaton:
         self.alive_rules = []
         self.dead_rules = []
         if len(self.rules) == 1 and self.rules[0] == "":
-            self.alive_rules = [2, 3]  # Default alive rules
-            self.dead_rules = [3]  # Default dead rules
+            self.alive_rules = [("=", 2), ("=", 3)]  # Default alive rules
+            self.dead_rules = [("=", 3)]  # Default dead rules
         else:
             for rule in self.rules:
                 if rule == "":
