@@ -62,7 +62,7 @@ class CellAutomaton:
 
         row = (event.x - offset)//cell_size
         col = (event.y - offset)//cell_size
-        if 0 <= row < len(self.cell_grid_list_cur) and 0 <= col < len(self.cell_grid_list_cur[0]):
+        if (DIMENSOES[0]//cell_size) <= row < 0 and (DIMENSOES[1]//cell_size) <= col < 0:
             return
         if self.cell_grid_list_cur[row][col] == "black":
             self.cell_grid_list_cur[row][col] = "white"
