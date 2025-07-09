@@ -39,6 +39,7 @@ class CellAutomaton:
 
         self.draw_grid()
         self.cell_grid.bind("<Button-1>", self.toggle_cell)
+        self.cell_grid.bind("<B1-Motion>", self.paint_cell)
 
         self.rules = ()
         rules_lbl = ttk.Label(main_frame, text="RULES:")
@@ -49,7 +50,7 @@ class CellAutomaton:
         start_btt = ttk.Button(main_frame, text="Start", command=self.start_simulation)
         start_btt.grid(row=canvas_row + 1, column=1, sticky="N S")
 
-        reset_btt = ttk.Button(main_frame, text="Reset", command=self.break_simulation)
+        reset_btt = ttk.Button(main_frame, text="Reset", command=self.reset_simulation)
         reset_btt.grid(row=canvas_row + 2, column=1, sticky="N S")
     
     def draw_grid(self, event=None):
@@ -60,10 +61,9 @@ class CellAutomaton:
                 self.cell_grid.create_rectangle(i*cell_size + offset, j*cell_size  + offset, (i + 1)*cell_size  + offset, (j + 1)*cell_size  + offset, outline="gray", fill=self.cell_grid_list_cur[i][j])
 
     def toggle_cell(self, event):
-
         row = (event.x - offset)//cell_size
         col = (event.y - offset)//cell_size
-        if (DIMENSOES[0]//cell_size) <= row < 0 and (DIMENSOES[1]//cell_size) <= col < 0:
+        if ((DIMENSOES[0]//cell_size) <= row or row < 0) or ((DIMENSOES[1]//cell_size) <= col or col < 0):
             return
         if self.cell_grid_list_cur[row][col] == "black":
             self.cell_grid_list_cur[row][col] = "white"
@@ -72,6 +72,15 @@ class CellAutomaton:
         
         self.cell_grid.create_rectangle(row*cell_size + offset, col*cell_size  + offset, (row + 1)*cell_size  + offset, (col + 1)*cell_size  + offset, outline="gray", fill=self.cell_grid_list_cur[row][col])
     
+    def paint_cell(self, event): 
+        row = (event.x - offset)//cell_size
+        col = (event.y - offset)//cell_size
+        if ((DIMENSOES[0]//cell_size) <= row or row < 0) or ((DIMENSOES[1]//cell_size) <= col or col < 0):
+            return
+        if self.cell_grid_list_cur[row][col] == "black":
+            self.cell_grid_list_cur[row][col] = "white"
+            self.cell_grid.create_rectangle(row*cell_size + offset, col*cell_size  + offset, (row + 1)*cell_size  + offset, (col + 1)*cell_size  + offset, outline="gray", fill=self.cell_grid_list_cur[row][col]) 
+
     def get_neighbors(self, row, col):
         total_alive = 0
         for i in range(-1, 2):
@@ -115,8 +124,11 @@ class CellAutomaton:
         self.draw_grid()
         if not changed:
             self.running = False
+        
         if self.running:
             self.after_ID = self.root.after(500, self.simulation_loop)
+            
+
         
     def apply_alive_rules(self, n_neighbors):
         live = False
@@ -134,7 +146,7 @@ class CellAutomaton:
                 continue
         return live
 
-    def break_simulation(self):
+    def reset_simulation(self):
         self.running = False
         if self.after_ID is not None:
             self.root.after_cancel(self.after_ID)
