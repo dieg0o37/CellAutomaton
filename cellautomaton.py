@@ -16,6 +16,7 @@ class CellAutomaton:
         self.root = root
         self.alive_rules = [2, 3]
         self.dead_rules = [3]
+        self.after_ID = None
 
         main_frame = ttk.Frame(root)
         main_frame.grid(row=0, column=0, sticky="N S W E")
@@ -115,7 +116,7 @@ class CellAutomaton:
         if not changed:
             self.running = False
         if self.running:
-            self.root.after(500, self.simulation_loop)
+            self.after_ID = self.root.after(500, self.simulation_loop)
         
     def apply_alive_rules(self, n_neighbors):
         live = False
@@ -135,6 +136,9 @@ class CellAutomaton:
 
     def break_simulation(self):
         self.running = False
+        if self.after_ID is not None:
+            self.root.after_cancel(self.after_ID)
+            self.after_ID = None
         self.cell_grid.bind("<Button-1>", self.toggle_cell)
         
         # Reset the grid
