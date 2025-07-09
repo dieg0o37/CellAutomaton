@@ -44,7 +44,7 @@ class CellAutomaton:
         self.rules = ()
         rules_lbl = ttk.Label(main_frame, text="RULES:")
         rules_lbl.grid(row=canvas_row - 2, column=1, sticky="N S")
-        self.rules_entry = Text(main_frame, height=10)
+        self.rules_entry = Text(main_frame, height=5, bg="gray", font=("Courier", 10), cursor="xterm")
         self.rules_entry.grid(row=canvas_row - 1, column=1, sticky="W E")
 
         start_btt = ttk.Button(main_frame, text="Start", command=self.start_simulation)
@@ -55,6 +55,7 @@ class CellAutomaton:
     
     def draw_grid(self, event=None):
         """Draw the grid on the canvas."""
+        self.cell_grid.delete("all")  # Clear the canvas
 
         for i in range(DIMENSOES[0] // cell_size):
             for j in range(DIMENSOES[1] // cell_size):
