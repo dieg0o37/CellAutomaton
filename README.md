@@ -1,6 +1,6 @@
 # Rules Formatting
 - State = "Dead" or "Alive"
-- Operator = "=", ">=", "<=", ">", "<", "!="
+- Operator = "=", "!="
 - Int = Number of alive neighbors
 
 ```
@@ -10,3 +10,6 @@
     ....
     # as many as you want
 ```
+## Obs
+- The rules are applied in the order they are defined.
+- Leave the rules entry empty to play Conways Game of Life.
