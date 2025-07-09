@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 
 
 DIMENSOES = (600, 600)  # Define the dimensions of the grid
@@ -14,8 +15,8 @@ class CellAutomaton:
         
         self.cell_grid_list_cur = []
         self.root = root
-        self.alive_rules = [2, 3]
-        self.dead_rules = [3]
+        self.alive_rules = []
+        self.dead_rules = []
         self.after_ID = None
 
         main_frame = ttk.Frame(root)
@@ -99,13 +100,49 @@ class CellAutomaton:
     def get_rules(self):
         rules = self.rules_entry.get("1.0", "end-1c")
         self.rules = rules.split("\n")
-        print(self.rules)
+        print("Rules:", self.rules)
+        
+        self.alive_rules = []
+        self.dead_rules = []
+        if len(self.rules) == 1 and self.rules[0] == "":
+            self.alive_rules = [2, 3]  # Default alive rules
+            self.dead_rules = [3]  # Default dead rules
+        else:
+            for rule in self.rules:
+                if rule == "":
+                    continue
+                rule = rule.lower()
+                parts = rule.split()
+                if len(parts) != 4:
+                    return False
+                if_buf, state, operator, value = parts
+                if if_buf != "if":
+                    return False
+                if state not in ["alive", "dead"]:
+                    return False
+                if operator not in ["=", "!="]:
+                    return False
+                try:
+                    value = int(value)
+                except ValueError:
+                    return False
+                if state == "Alive":
+                    self.alive_rules.append((operator, value))
+                else:
+                    self.dead_rules.append((operator, value))
+        
+        # Print the rules for debugging purposes
+        print("Alive Rules:", self.alive_rules)
+        print("Dead Rules:", self.dead_rules)
+        return True
     
     def start_simulation(self):
-        self.cell_grid.unbind("<Button-1>")
-        self.get_rules()
-        self.running = True
-        self.simulation_loop()        
+        if self.get_rules():
+            self.cell_grid.unbind("<Button-1>")
+            self.running = True
+            self.simulation_loop()
+        else:
+            messagebox.showerror("Error", "Please enter valid rules in the format: if <State> <Operator> <Int>")
 
     def simulation_loop(self):
         changed = False
@@ -132,27 +169,36 @@ class CellAutomaton:
 
         
     def apply_alive_rules(self, n_neighbors):
+        """Returns True if the cell should stay alive, False if it should die."""
         live = False
-        for i in self.alive_rules:
-            if n_neighbors == i:
+        for operator, value in self.alive_rules:
+            if operator == "=" and n_neighbors == value:
                 live = True
-                continue
+            elif operator == "!=" and n_neighbors != value:
+                live = True
         return live
     
     def apply_dead_rules(self, n_neighbors):
+        """Returns True if the cell should live, False if it should stay dead."""
         live = False
-        for i in self.dead_rules:
-            if n_neighbors == i:
+        for operator, value in self.dead_rules:
+            if operator == "=" and n_neighbors == value:
                 live = True
-                continue
+            elif operator == "!=" and n_neighbors != value:
+                live = True
         return live
 
     def reset_simulation(self):
-        self.running = False
+        
         if self.after_ID is not None:
             self.root.after_cancel(self.after_ID)
             self.after_ID = None
-        self.cell_grid.bind("<Button-1>", self.toggle_cell)
+        if self.running:
+            self.cell_grid.bind("<Button-1>", self.toggle_cell)
+            self.running = False
+
+        # Clear the rules entry    
+        self.rules_entry.delete("1.0", "end")
         
         # Reset the grid
         self.cell_grid_list_cur = [["black" for _ in range(DIMENSOES[0] // cell_size)] for _ in range(DIMENSOES[1] // cell_size)]
